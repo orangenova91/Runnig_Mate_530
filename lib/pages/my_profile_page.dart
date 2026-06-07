@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../models/user_profile.dart';
+import '../services/auth_service.dart';
 import '../services/user_service.dart';
 import '../theme/app_theme.dart';
 import '../utils/profile_constants.dart';
@@ -130,6 +131,15 @@ class MyProfilePage extends StatelessWidget {
                       ),
                     );
                   },
+                ),
+                const SizedBox(height: 12),
+                OutlinedButton(
+                  onPressed: () async {
+                    await AuthService().signOut();
+                    if (!context.mounted) return;
+                    Navigator.of(context).popUntil((route) => route.isFirst);
+                  },
+                  child: const Text('로그아웃'),
                 ),
               ],
             ),

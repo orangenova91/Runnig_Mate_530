@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 
 import '../services/auth_service.dart';
 import '../theme/app_theme.dart';
-import 'discovery_page.dart';
 import 'login_page.dart';
+import 'main_shell.dart';
 import 'onboarding_page.dart';
 
 /// 로그인 상태 + 프로필 유무에 따라 초기 화면 분기
@@ -40,7 +40,7 @@ class AuthGate extends StatelessWidget {
 
             final hasProfile = profileSnap.data?.exists ?? false;
             return hasProfile
-                ? const DiscoveryPage()
+                ? const MainShell()
                 : const OnboardingPage();
           },
         );
