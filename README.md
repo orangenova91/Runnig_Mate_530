@@ -33,7 +33,16 @@ chmod +x scripts/configure_firebase.sh
 ./scripts/configure_firebase.sh
 ```
 
-Firebase 콘솔에서 **Authentication → 이메일/비밀번호** 활성화가 필요합니다.
+Firebase 콘솔에서 다음 로그인 방식을 활성화해야 합니다.
+
+- **이메일/비밀번호**
+- **OpenID Connect (OIDC)** — Provider ID: `oidc.kakao`, Issuer: `https://kauth.kakao.com`
+
+카카오 개발자 콘솔에서 **OpenID Connect** 활성화 및 Redirect URI 등록이 필요합니다.
+
+```
+https://running-date-2ee0d.firebaseapp.com/__/auth/handler
+```
 
 ## 배포
 
@@ -56,5 +65,5 @@ npm run deploy:backend
 AuthGate
   ├─ 미로그인 → LoginPage
   ├─ 로그인 + 프로필 없음 → OnboardingPage
-  └─ 로그인 + 프로필 있음 → DiscoveryPage
+  └─ 로그인 + 프로필 있음 → MainShell (탐색 · 관심 · 프로필)
 ```

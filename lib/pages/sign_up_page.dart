@@ -3,8 +3,12 @@ import 'package:flutter/material.dart';
 
 import '../services/auth_service.dart';
 import '../theme/app_theme.dart';
+import '../utils/auth_error_messages.dart';
 import '../widgets/app_text_field.dart';
+import '../widgets/auth_divider.dart';
+import '../widgets/auth_error_banner.dart';
 import '../widgets/auth_hero.dart';
+import '../widgets/kakao_login_button.dart';
 import '../widgets/primary_button.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -19,7 +23,10 @@ class _SignUpPageState extends State<SignUpPage> {
   final _passwordController = TextEditingController();
   final _auth = AuthService();
   bool _loading = false;
+  bool _kakaoLoading = false;
   String? _error;
+
+  bool get _isBusy => _loading || _kakaoLoading;
 
   Future<void> _signUp() async {
     setState(() {
@@ -32,12 +39,27 @@ class _SignUpPageState extends State<SignUpPage> {
         _passwordController.text,
       );
       if (!mounted) return;
-      // AuthGate가 온보딩 화면으로 전환합니다. 회원가입 페이지만 닫습니다.
       Navigator.of(context).pop();
     } catch (e) {
       setState(() => _error = _signUpErrorMessage(e));
     } finally {
       if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _signUpWithKakao() async {
+    setState(() {
+      _kakaoLoading = true;
+      _error = null;
+    });
+    try {
+      await _auth.signInWithKakao();
+      if (!mounted) return;
+      Navigator.of(context).pop();
+    } catch (e) {
+      setState(() => _error = authErrorMessage(e, fallback: '카카오 로그인에 실패했습니다.'));
+    } finally {
+      if (mounted) setState(() => _kakaoLoading = false);
     }
   }
 
@@ -84,11 +106,19 @@ class _SignUpPageState extends State<SignUpPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      KakaoLoginButton(
+                        loading: _kakaoLoading,
+                        onPressed: _isBusy ? null : _signUpWithKakao,
+                      ),
+                      const SizedBox(height: 20),
+                      const AuthDivider(),
+                      const SizedBox(height: 20),
                       AppTextField(
                         controller: _emailController,
                         label: '이메일',
                         icon: Icons.email_outlined,
                         keyboardType: TextInputType.emailAddress,
+                        enabled: !_isBusy,
                       ),
                       const SizedBox(height: 16),
                       AppTextField(
@@ -97,41 +127,17 @@ class _SignUpPageState extends State<SignUpPage> {
                         hint: '6자 이상',
                         icon: Icons.lock_outline,
                         obscureText: true,
+                        enabled: !_isBusy,
                       ),
                       if (_error != null) ...[
                         const SizedBox(height: 12),
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: AppTheme.error.withValues(alpha: 0.08),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.error_outline,
-                                size: 18,
-                                color: AppTheme.error,
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  _error!,
-                                  style: const TextStyle(
-                                    color: AppTheme.error,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                        AuthErrorBanner(message: _error!),
                       ],
                       const SizedBox(height: 24),
                       PrimaryButton(
-                        label: '가입하기',
+                        label: '이메일로 가입하기',
                         loading: _loading,
-                        onPressed: _signUp,
+                        onPressed: _isBusy ? null : _signUp,
                       ),
                     ],
                   ),

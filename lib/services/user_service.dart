@@ -25,11 +25,21 @@ class UserService {
   }
 
   Future<void> createProfile(String uid, Map<String, dynamic> data) async {
-    await _users.doc(uid).set(data);
-    await _db.collection('likes').doc(uid).set({
+    final batch = _db.batch();
+    batch.set(_users.doc(uid), data);
+    batch.set(_db.collection('likes').doc(uid), {
       'liked': <String>[],
       'passed': <String>[],
     });
+    await batch.commit();
+  }
+
+  Future<bool> waitForProfile(String uid, {int maxAttempts = 15}) async {
+    for (var i = 0; i < maxAttempts; i++) {
+      if (await profileExists(uid)) return true;
+      await Future<void>.delayed(const Duration(milliseconds: 200));
+    }
+    return false;
   }
 
   Stream<UserProfile?> watchMyProfile(String uid) {

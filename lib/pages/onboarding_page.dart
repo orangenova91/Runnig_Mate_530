@@ -49,6 +49,20 @@ class _OnboardingPageState extends State<OnboardingPage> {
     'interval': '인터벌 러닝',
   };
 
+  @override
+  void initState() {
+    super.initState();
+    final user = FirebaseAuth.instance.currentUser;
+    final name = user?.displayName;
+    if (name != null && name.isNotEmpty) {
+      _nameController.text = name;
+    }
+    final photo = user?.photoURL;
+    if (photo != null && photo.isNotEmpty) {
+      _photoUrl = photo;
+    }
+  }
+
   Future<void> _pickProfilePhoto() async {
     final file = await _picker.pickImage(
       source: ImageSource.gallery,
@@ -193,7 +207,12 @@ class _OnboardingPageState extends State<OnboardingPage> {
     }
 
     final uid = FirebaseAuth.instance.currentUser?.uid;
-    if (uid == null) return;
+    if (uid == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('로그인 세션이 만료되었습니다. 다시 로그인해 주세요.')),
+      );
+      return;
+    }
 
     setState(() => _submitting = true);
     try {
@@ -224,7 +243,21 @@ class _OnboardingPageState extends State<OnboardingPage> {
           paceVerifyPhotoUrl: _verifyPhotoUrl ?? '',
         ),
       );
-      // AuthGate가 프로필 생성을 감지해 디스커버리로 자동 전환합니다.
+
+      final saved = await _userService.waitForProfile(uid);
+      if (!saved && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('프로필 저장이 확인되지 않았습니다. 잠시 후 다시 시도해 주세요.'),
+          ),
+        );
+      }
+    } on FirebaseException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(_profileSaveErrorMessage(e))),
+        );
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -233,6 +266,17 @@ class _OnboardingPageState extends State<OnboardingPage> {
       }
     } finally {
       if (mounted) setState(() => _submitting = false);
+    }
+  }
+
+  String _profileSaveErrorMessage(FirebaseException e) {
+    switch (e.code) {
+      case 'permission-denied':
+        return '프로필 저장 권한이 없습니다. 로그인 상태를 확인하거나 잠시 후 다시 시도해 주세요.';
+      case 'unavailable':
+        return '서버에 연결할 수 없습니다. 네트워크를 확인해 주세요.';
+      default:
+        return '프로필 저장 실패 (${e.code})';
     }
   }
 
@@ -261,6 +305,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
         Center(
           child: ProfilePhotoPicker(
             imageBytes: _profileBytes,
+            imageUrl: _photoUrl,
             onPick: _pickProfilePhoto,
             isLoading: _uploadingPhoto,
           ),
