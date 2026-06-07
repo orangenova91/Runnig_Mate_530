@@ -1,11 +1,11 @@
 {
-    "name": "Running Date",
-    "short_name": "Running Date",
+    "name": "Runnig Mate 530",
+    "short_name": "Mate 530",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Runnig Mate 530 — 러닝 매칭 앱",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

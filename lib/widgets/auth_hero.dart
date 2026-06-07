@@ -59,7 +59,7 @@ class AuthHero extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               Text(
-                'Running Date',
+                'Runnig Mate 530',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       color: AppTheme.textSecondary,
                       fontSize: 14,

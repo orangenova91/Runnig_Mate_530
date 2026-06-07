@@ -19,7 +19,7 @@ class RunningDateApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Running Date',
+      title: 'Runnig Mate 530',
       theme: AppTheme.light,
       home: const AuthGate(),
       debugShowCheckedModeBanner: false,

@@ -1,4 +1,4 @@
-# Running Date
+# Runnig Mate 530
 
 러닝 매칭 앱 — Flutter + Firebase
 

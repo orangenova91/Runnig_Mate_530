@@ -2,7 +2,7 @@
   "name": "running-date",
   "version": "1.0.0",
   "private": true,
-  "description": "Running Date — Flutter + Firebase",
+  "description": "Runnig Mate 530 — Flutter + Firebase",
   "scripts": {
     "fix:pace-temp": "node scripts/fix-pace-temp.js",
     "firebase:login": "firebase login",
