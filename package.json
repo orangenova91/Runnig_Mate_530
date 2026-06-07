@@ -1,0 +1,25 @@
+{
+  "name": "running-date",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Running Date — Flutter + Firebase",
+  "scripts": {
+    "fix:pace-temp": "node scripts/fix-pace-temp.js",
+    "firebase:login": "firebase login",
+    "deploy:rules": "firebase deploy --only firestore:rules",
+    "deploy:indexes": "firebase deploy --only firestore:indexes",
+    "deploy:firestore": "firebase deploy --only firestore:rules,firestore:indexes",
+    "deploy:storage": "firebase deploy --only storage",
+    "build:web": "flutter build web --release",
+    "deploy:hosting": "firebase deploy --only hosting",
+    "deploy:backend": "firebase deploy --only firestore:rules,firestore:indexes,storage",
+    "deploy": "npm run build:web && firebase deploy",
+    "storage:cors": "bash scripts/configure-storage-cors.sh"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.0.0"
+  },
+  "devDependencies": {
+    "firebase-tools": "^13.0.0"
+  }
+}

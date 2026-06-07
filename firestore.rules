@@ -1,0 +1,46 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function isActiveUser() {
+      return resource.data.status != 'suspended';
+    }
+
+    // users: 본인만 create/update/delete, 타인 프로필은 read만 (suspended는 읽기 차단)
+    match /users/{userId} {
+      allow read: if isSignedIn()
+                  && (isOwner(userId) || isActiveUser());
+      allow create: if isOwner(userId)
+                    && request.resource.data.status == 'active'
+                    && request.resource.data.paceTemp > 36.5
+                    && request.resource.data.paceVerified == false;
+      allow update: if isOwner(userId)
+                    && (request.resource.data.status == resource.data.status
+                        || request.resource.data.status in ['active', 'matched', 'accepted']);
+      allow delete: if isOwner(userId);
+    }
+
+    // safe_zones: 인증 유저 read만 (seed는 Firebase Console 또는 Admin SDK)
+    match /safe_zones/{zoneId} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+
+    // likes: 본인 스와이프 기록만 읽기/쓰기
+    match /likes/{uid} {
+      allow read, write: if isOwner(uid);
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
